@@ -19,7 +19,8 @@
 	"extensions": [
 		"dbaeumer.vscode-eslint",
 		"mike-lischke.vscode-antlr4",
-		"bierner.markdown-preview-github-styles"
+		"bierner.markdown-preview-github-styles",
+		"editorconfig.editorconfig"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
