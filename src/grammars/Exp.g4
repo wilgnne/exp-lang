@@ -61,17 +61,20 @@ st_print:
 
 expression:
 	term (
-		op = PLUS expression {
-        console.log("    iadd");
+		op = (PLUS | SUB) term {
+      if ($op.type === ExpParser.PLUS) console.log("    iadd");
+      if ($op.type === ExpParser.SUB)  console.log("    isub");
     }
-	)?;
+	)*;
 
 term:
 	factor (
-		op = TIMES term {
-        console.log("    imul");
+		op = (TIMES | DIV | MOD) factor {
+      if ($op.type === ExpParser.TIMES) console.log("    imul");
+      if ($op.type === ExpParser.DIV)   console.log("    idiv");
+      if ($op.type === ExpParser.MOD)   console.log("    irem");
     }
-	)?;
+	)*;
 
 factor:
 	NUMBER {

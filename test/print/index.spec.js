@@ -25,14 +25,18 @@ describe('Test print statement', () => {
   })
 
   test('print a mod', () => {
-    expect(out[3]).toBe('0');
+    expect(out[4]).toBe('0');
   })
 
   test('print a simple equation', () => {
-    expect(out[3]).toBe('5');
+    expect(out[5]).toBe('5');
   })
 
   test('print a complex equation', () => {
-    expect(out[3]).toBe('3');
+    expect(out[6]).toBe('3');
+  })
+
+  test('left to right arithmetic', () => {
+    expect(out[7]).toBe('-4');
   })
 })
