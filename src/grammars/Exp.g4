@@ -10,23 +10,26 @@ grammar Exp;
 }
 
 /*---------------- LEXER RULES ----------------*/
+COMMENT: '#' ~('\n')*              -> skip;
+SPACE: (' ' | '\t' | '\r' | '\n')+ -> skip;
 
-PLUS: '+';
-TIMES: '*';
+/* OPERATORS */
+PLUS:   '+';
+SUB:    '-';
+TIMES:  '*';
+DIV:    '/';
+MOD:    '%';
 OP_PAR: '(';
 CL_PAR: ')';
 
 NUMBER: '0' ..'9'+;
 
-COMMENT: '#' ~('\n')* -> skip;
-SPACE: (' ' | '\t' | '\r' | '\n')+ -> skip;
-
 /*---------------- PARSER RULES ----------------*/
 
 program:
 	{
-    console.log(".source Test.src");
-    console.log(".class  public Test");
+    // console.log(".source Test.src");
+    // console.log(".class  public Test");
     console.log(".super  java/lang/Object\n");
     console.log(".method public <init>()V");
     console.log("    aload_0");
