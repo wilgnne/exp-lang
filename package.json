@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "install": "npm run ant",
+    "preant": "javac src/Runtime.java -d build/",
     "ant": "java -jar bin/antlr-4.9.1-complete.jar -Dlanguage=JavaScript -no-listener -o tmp src/grammars/Exp.g4 && mkdir -p build",
     "postant": "mv tmp/src/grammars/* src/antlr && rm -r tmp",
     "prestart": "npm run ant",

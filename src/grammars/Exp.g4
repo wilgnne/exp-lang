@@ -6,6 +6,40 @@ grammar Exp;
   import { exit } from 'process';
   var symbol_table = Array();
   var used_table = Array();
+  let stack_curr = 0;
+  let stack_max = stack_curr;
+
+  function updateStack(sideEffect) {
+    // console.log("; ", stack_curr, stack_max, sideEffect)
+
+    stack_curr += sideEffect;
+    if (stack_curr > stack_max) {
+      stack_max = stack_curr
+    }
+  }
+
+  function getPrint() {
+    console.log("    getstatic java/lang/System/out Ljava/io/PrintStream;");
+    updateStack(1);
+  }
+
+  function printInt() {
+    console.log("    invokevirtual java/io/PrintStream/print(I)V");
+    console.log()
+    updateStack(-2);
+  }
+
+  function printStr() {
+    console.log("    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V");
+    console.log()
+    updateStack(-2);
+  }
+
+  function println() {
+    console.log("    invokevirtual java/io/PrintStream/println()V");
+    console.log()
+    updateStack(-1);
+  }
 }
 
 @parser::members {
@@ -24,8 +58,12 @@ MOD: '%';
 OP_PAR: '(';
 CL_PAR: ')';
 ATTRIB: '=';
+COMMA: ',';
 
 PRINT: 'print';
+READ_INT: 'read_int';
+
+IF: 'if';
 
 NUMBER: '0' ..'9'+;
 NAME: 'a' ..'z'+;
@@ -60,7 +98,7 @@ main:
   } (statement)+ {
     console.log("    return");
     console.log();
-    console.log(".limit stack 10");
+    console.log(".limit stack", stack_max);
     console.log(".limit locals", symbol_table.length);
     console.log(".end method");
 
@@ -75,19 +113,31 @@ statement:
   };
 
 st_print:
-	PRINT OP_PAR {
-    console.log("    getstatic java/lang/System/out Ljava/io/PrintStream;");
+  PRINT OP_PAR {
+    getPrint();
+  } (expression {
+    printInt();
+    getPrint();
+  } (COMMA {
+    console.log('    ldc " "')
+    updateStack(1)
+    printStr();
+    getPrint();
   } expression {
-    console.log("    invokevirtual java/io/PrintStream/println(I)V");
-  } CL_PAR;
+    printInt();
+    getPrint();
+  })*)? CL_PAR {
+    println();
+  };
 
 st_attrib:
-	NAME ATTRIB expression {
+ 	NAME ATTRIB expression {
     let index = symbol_table.indexOf($NAME.text);
     index = index !== -1 ? index : symbol_table.length;
     symbol_table[index] = $NAME.text;
 
     console.log("    istore", index);
+    updateStack(-1);
   };
 
 expression:
@@ -95,6 +145,7 @@ expression:
 		op = (PLUS | SUB) term {
       if ($op.type === ExpParser.PLUS) console.log("    iadd");
       if ($op.type === ExpParser.SUB)  console.log("    isub");
+      updateStack(-1);
     }
 	)*;
 
@@ -104,13 +155,14 @@ term:
       if ($op.type === ExpParser.TIMES) console.log("    imul");
       if ($op.type === ExpParser.DIV)   console.log("    idiv");
       if ($op.type === ExpParser.MOD)   console.log("    irem");
+      updateStack(-1);
     }
 	)*;
 
 factor:
 	NUMBER {
     console.log("    ldc " + $NUMBER.text);
-    // symbol_table.push($NUMBER.text);
+    updateStack(1);
   }
 	| OP_PAR expression CL_PAR
 	| NAME {
@@ -122,4 +174,9 @@ factor:
     used_table[index] = $NAME.text;
 
     console.log("    iload", index);
+    updateStack(1);
+  }
+	| READ_INT OP_PAR CL_PAR {
+    console.log("    invokestatic Runtime/readInt()I");
+    updateStack(1);
   };
