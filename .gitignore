@@ -3,4 +3,6 @@
 yarn.lock
 package-lock.json
 .antlr
-src/antlr
+src/antlr/**/*.js
+src/antlr/**/*.interp
+src/antlr/**/*.tokens
