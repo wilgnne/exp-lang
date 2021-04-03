@@ -25,7 +25,8 @@
     "poststart": "npm run jasmin",
     "jasmin": "java -jar bin/jasmin.jar build/Test.j -d build",
     "postjasmin": "java -cp build/ Test",
-    "test": "jest"
+    "pretest": "npm run ant",
+    "test": "jest --verbose"
   },
   "dependencies": {
     "antlr4": "^4.9.1"

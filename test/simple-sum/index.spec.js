@@ -1,10 +1,14 @@
 import path from 'path';
-import { execSync } from 'child_process';
+import build_run from '../build'
 
-const file = path.resolve(__dirname, 'simple-sum.py')
+describe('simple-sum', () => {
+  let out
 
-test('adds 1 + 2 to equal 3', () => {
-    execSync(`npm start ${file}`)
-    const out = execSync('java -cp build/ Test', { encoding: 'utf-8' })
-    expect(out).toBe('3\n');
+  beforeAll(() => {
+    out = build_run(path.resolve(__dirname, 'simpleSum.py'))
+  });
+
+  test('adds 1 + 2 to equal 3', () => {
+    expect(out[0]).toBe('3');
+  })
 })
