@@ -10,19 +10,21 @@ grammar Exp;
 }
 
 /*---------------- LEXER RULES ----------------*/
-COMMENT: '#' ~('\n')*              -> skip;
+COMMENT: '#' ~('\n')* -> skip;
 SPACE: (' ' | '\t' | '\r' | '\n')+ -> skip;
 
 /* OPERATORS */
-PLUS:   '+';
-SUB:    '-';
-TIMES:  '*';
-DIV:    '/';
-MOD:    '%';
+PLUS: '+';
+SUB: '-';
+TIMES: '*';
+DIV: '/';
+MOD: '%';
 OP_PAR: '(';
 CL_PAR: ')';
 
 NUMBER: '0' ..'9'+;
+
+PRINT: 'print';
 
 /*---------------- PARSER RULES ----------------*/
 
@@ -41,14 +43,21 @@ program:
 main:
 	{
     console.log(".method public static main([Ljava/lang/String;)V\n");
-    console.log("    getstatic java/lang/System/out Ljava/io/PrintStream;");
-  } expression {
-    console.log("    invokevirtual java/io/PrintStream/println(I)V\n");
+  } (statement)+ {
     console.log("    return");
     console.log(".limit stack 10");
     console.log(".end method");
     // console.log("\n; symbol_table: " + symbol_table);
   };
+
+statement: st_print;
+
+st_print:
+	PRINT OP_PAR {
+    console.log("    getstatic java/lang/System/out Ljava/io/PrintStream;");
+  } expression {
+    console.log("    invokevirtual java/io/PrintStream/println(I)V\n");
+  } CL_PAR;
 
 expression:
 	term (
