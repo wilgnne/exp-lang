@@ -1,7 +1,7 @@
 import path from 'path';
 import build_run from "../build";
 
-describe('Test print stetimanet', () => {
+describe('Test print statement', () => {
   let out
 
   beforeAll(() => {
