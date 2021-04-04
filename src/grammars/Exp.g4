@@ -9,6 +9,8 @@ grammar Exp;
   let stack_curr = 0;
   let stack_max = stack_curr;
 
+  let if_curr = 0;
+
   function updateStack(sideEffect) {
     // console.log("; ", stack_curr, stack_max, sideEffect)
 
@@ -49,6 +51,13 @@ grammar Exp;
 COMMENT: '#' ~('\n')* -> skip;
 SPACE: (' ' | '\t' | '\r' | '\n')+ -> skip;
 
+EQ: '==';
+NE: '!=';
+GT: '>';
+GE: '>=';
+LT: '<';
+LE: '<=';
+
 /* OPERATORS */
 PLUS: '+';
 SUB: '-';
@@ -57,6 +66,8 @@ DIV: '/';
 MOD: '%';
 OP_PAR: '(';
 CL_PAR: ')';
+OP_CUR: '{';
+CL_CUR: '}';
 ATTRIB: '=';
 COMMA: ',';
 
@@ -110,7 +121,8 @@ statement:
 	st_print
 	| st_attrib {
     console.log();
-  };
+  }
+  | st_if;
 
 st_print:
   PRINT OP_PAR {
@@ -139,6 +151,31 @@ st_attrib:
     console.log("    istore", index);
     updateStack(-1);
   };
+
+st_if:
+  IF comparasion {
+    const if_local = if_curr
+    console.log(`NOT_IF_${if_curr}`)
+    if_curr += 1
+  } OP_CUR (statement)* CL_CUR {
+    console.log(`NOT_IF_${if_local}:`);
+  };
+
+comparasion:
+  expression (
+    op = ( EQ | NE | GT | GE | LT| LE ) expression {
+      const if_decoder = {
+        [ExpParser.EQ]: "ne",
+        [ExpParser.NE]: "eq",
+        [ExpParser.GT]: "le",
+        [ExpParser.GE]: "lt",
+        [ExpParser.LT]: "ge",
+        [ExpParser.LE]: "gt",
+      }
+      const op = if_decoder[$op.type];
+      process.stdout.write(`    if_icmp${op} `);
+    }
+  );
 
 expression:
 	term (
