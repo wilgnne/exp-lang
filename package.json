@@ -1,19 +1,19 @@
 {
-  "name": "jarpy",
+  "name": "exp-lang",
   "version": "1.0.0",
   "main": "src/index.js",
   "license": "MIT",
   "type": "module",
   "author": {
-    "email": "vitorgomes2007@hotmail.com",
-    "name": "Vitor Gomes",
-    "url": "https://github.com/vitoorgomes"
+    "email": "wilgnne.kba@gmail.com",
+    "name": "Wilgnne Khawan",
+    "url": "https://github.com/wilgnne"
   },
   "contributors": [
     {
-      "email": "wilgnne.kba@gmail.com",
-      "name": "Wilgnne Khawan",
-      "url": "https://github.com/wilgnne"
+      "email": "vitorgomes2007@hotmail.com",
+      "name": "Vitor Gomes",
+      "url": "https://github.com/vitoorgomes"
     }
   ],
   "scripts": {
