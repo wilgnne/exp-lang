@@ -5,7 +5,7 @@ describe('Undefined Variables', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'undefinedVariables.py'))
+    out = build_run(path.resolve(__dirname, 'undefinedVariables.exp'))
   });
 
   test("Undefined Variable: y", () => {

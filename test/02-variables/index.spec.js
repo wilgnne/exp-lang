@@ -5,7 +5,7 @@ describe('Variables', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'variables.py'))
+    out = build_run(path.resolve(__dirname, 'variables.exp'))
   });
 
   test('print(x * 5)', () => {

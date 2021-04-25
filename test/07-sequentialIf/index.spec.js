@@ -5,7 +5,7 @@ describe('Sequential if', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'sequentialIf.py'))
+    out = build_run(path.resolve(__dirname, 'sequentialIf.exp'))
   });
 
   test("if x != y", () => {

@@ -5,7 +5,7 @@ describe('Unused Variables', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'unusedVariables.py'))
+    out = build_run(path.resolve(__dirname, 'unusedVariables.exp'))
   });
 
   test("Unused Variables: [ 'b' ]", () => {

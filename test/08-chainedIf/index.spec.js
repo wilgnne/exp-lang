@@ -5,7 +5,7 @@ describe('Chained if', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'chainedIf.py'))
+    out = build_run(path.resolve(__dirname, 'chainedIf.exp'))
   });
 
   test("if b <= c", () => {

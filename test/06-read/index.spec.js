@@ -5,7 +5,7 @@ describe('Read', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'read.py'), '1\n2\n')
+    out = build_run(path.resolve(__dirname, 'read.exp'), '1\n2\n')
   });
 
   test("read 1 end 2 end add", () => {

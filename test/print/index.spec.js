@@ -5,7 +5,7 @@ describe('Test print statement', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'print.py'))
+    out = build_run(path.resolve(__dirname, 'print.exp'))
   });
 
   test('print one number', () => {

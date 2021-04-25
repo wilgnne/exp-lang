@@ -5,7 +5,7 @@ describe('Multiple Print', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'multiplePrint.py'))
+    out = build_run(path.resolve(__dirname, 'multiplePrint.exp'))
   });
 
   test("print 2 4 8", () => {

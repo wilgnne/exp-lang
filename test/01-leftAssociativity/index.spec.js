@@ -5,7 +5,7 @@ describe('Left Associativity', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'leftAssociativity.py'))
+    out = build_run(path.resolve(__dirname, 'leftAssociativity.exp'))
   });
 
   test('print 4 - 3 - 2 - 1', () => {

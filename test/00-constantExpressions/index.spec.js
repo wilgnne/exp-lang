@@ -5,7 +5,7 @@ describe('Constant Expressions', () => {
   let out
 
   beforeAll(() => {
-    out = build_run(path.resolve(__dirname, 'constantExpressions.py'))
+    out = build_run(path.resolve(__dirname, 'constantExpressions.exp'))
   });
 
   test('print 0', () => {
