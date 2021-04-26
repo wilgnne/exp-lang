@@ -11,6 +11,7 @@ grammar Exp;
   let stack_max = stack_curr;
 
   let if_curr = 0;
+  let while_curr = 0;
 
   function programHeader() {
     // console.log(".source Test.src");
@@ -69,6 +70,18 @@ grammar Exp;
 
   function ifFooter(if_local) {
     console.log(`NOT_IF_${if_local}:`);
+  }
+
+  function whileHeader() {
+    const while_local = while_curr;
+    console.log(`BEGIN_WHILE_${while_curr}:`);
+    while_curr += 1;
+    return while_local;
+  }
+
+  function whileFooter(while_local) {
+    console.log(`    goto   BEGIN_WHILE_${while_local}`)
+    console.log(`END_WHILE_${while_local}:`);
   }
 
   function comparasion(ExpParser, operator) {
@@ -184,6 +197,7 @@ PRINT: 'print';
 READ_INT: 'read_int';
 
 IF: 'if';
+WHILE: 'while';
 
 NUMBER: '0' ..'9'+;
 NAME: 'a' ..'z'+;
@@ -194,7 +208,11 @@ program: { programHeader(); } main { programFooter(); };
 
 main: { mainHeader(); } (statement)+ { mainFooter(); };
 
-statement: st_print | st_attrib { console.log(); } | st_if;
+statement:
+	st_print
+	| st_attrib { console.log(); }
+	| st_if
+	| st_while;
 
 st_print:
 	PRINT OP_PAR { getPrint(); } (
@@ -214,6 +232,12 @@ st_if:
 	IF comparasion { const if_local = ifHeader(); } OP_CUR (
 		statement
 	)* CL_CUR { ifFooter(if_local); };
+
+st_while:
+	WHILE { const while_local = whileHeader(); } comparasion { console.log(`END_WHILE_${while_local}\n`);
+		} OP_CUR (
+		statement
+	)* CL_CUR { whileFooter(while_local); };
 
 comparasion:
 	expression (
