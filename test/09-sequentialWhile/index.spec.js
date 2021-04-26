@@ -16,6 +16,10 @@ describe('Sequential while', () => {
   test("while n >= 1", () => {
     expect(out[2]).toBe("3");
     expect(out[3]).toBe("2");
-    expect(out[3]).toBe("2");
+    expect(out[4]).toBe("1");
+  })
+
+  test("No more outputs", () => {
+    expect(out[5]).toBe("");
   })
 })
