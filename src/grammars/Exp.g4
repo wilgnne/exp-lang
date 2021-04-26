@@ -68,18 +68,16 @@ grammar Exp;
     return if_local;
   }
 
-  function ifElseFooter(local, existElse, ifPart) {
-    if (existElse) {
-      console.log(`    goto END_ELSE_${local}\n`);
+  function ifElseFooter(current, nextIsElse, ifEnd, main, prevIsElse) {
+    if (ifEnd) {
+      if (nextIsElse) {
+        console.log(`    goto END_ELSE_${main}\n`);
+      }
+      if (!prevIsElse)
+        console.log(`NOT_IF_${current}:`);
     }
-
-    if(ifPart) {
-      console.log(`NOT_IF_${local}:`);
-    } else if (existElse) {
-      console.log(`END_ELSE_${local}:\n`);
-    }
-
-    return existElse;
+    if (!nextIsElse)
+      console.log(`END_ELSE_${current}:\n`);
   }
 
   function whileHeader() {
@@ -250,13 +248,18 @@ st_attrib: NAME ATTRIB expression { attribution($NAME); };
 
 st_if:
 	IF comparasion {
-    const if_local = ifHeader();
-    let existElse;
-  } OP_CUR (statement)* (
-		CL_CUR ELSE { existElse = ifElseFooter(if_local, true, true); } OP_CUR (
-			statement
-		)*
-	)? CL_CUR { ifElseFooter(if_local, existElse, !existElse) };
+    let current_if = ifHeader();
+    const main_if = current_if;
+    let prevIsElse;
+  } OP_CUR (statement*) (
+		CL_CUR { ifElseFooter(current_if, true, true, main_if) } ELSE IF comparasion {
+      current_if = ifHeader();
+		} OP_CUR (statement*)
+	)* (
+		CL_CUR { ifElseFooter(current_if, true, true, main_if); prevIsElse = true; } ELSE OP_CUR (
+			statement*
+		)
+	)? CL_CUR { ifElseFooter(main_if, false, true, main_if, prevIsElse) };
 
 st_while:
 	WHILE { const while_local = whileHeader(); } comparasion {
