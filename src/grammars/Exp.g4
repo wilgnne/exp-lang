@@ -68,8 +68,18 @@ grammar Exp;
     return if_local;
   }
 
-  function ifFooter(if_local) {
-    console.log(`NOT_IF_${if_local}:`);
+  function ifElseFooter(local, existElse, ifPart) {
+    if (existElse) {
+      console.log(`    goto END_ELSE_${local}\n`);
+    }
+
+    if(ifPart) {
+      console.log(`NOT_IF_${local}:`);
+    } else if (existElse) {
+      console.log(`END_ELSE_${local}:\n`);
+    }
+
+    return existElse;
   }
 
   function whileHeader() {
@@ -98,7 +108,7 @@ grammar Exp;
       [ExpParser.LE]: "gt",
     }
     const op = if_decoder[operator.type];
-    process.stdout.write(`    if_icmp${op} `);
+    process.stdout.write(`\n    if_icmp${op} `);
   }
 
   function expression(operator) {
@@ -201,6 +211,8 @@ PRINT: 'print';
 READ_INT: 'read_int';
 
 IF: 'if';
+ELSE: 'else';
+
 WHILE: 'while';
 BREAK: 'break';
 CONTINUE: 'continue';
@@ -237,13 +249,19 @@ st_print:
 st_attrib: NAME ATTRIB expression { attribution($NAME); };
 
 st_if:
-	IF comparasion { const if_local = ifHeader(); } OP_CUR (
-		statement
-	)* CL_CUR { ifFooter(if_local); };
+	IF comparasion {
+    const if_local = ifHeader();
+    let existElse;
+  } OP_CUR (statement)* (
+		CL_CUR ELSE { existElse = ifElseFooter(if_local, true, true); } OP_CUR (
+			statement
+		)*
+	)? CL_CUR { ifElseFooter(if_local, existElse, !existElse) };
 
 st_while:
-	WHILE { const while_local = whileHeader(); } comparasion { console.log(`END_WHILE_${while_local}\n`);
-		} OP_CUR (statement)* CL_CUR { whileFooter(while_local); };
+	WHILE { const while_local = whileHeader(); } comparasion {
+    console.log(`END_WHILE_${while_local}\n`);
+	} OP_CUR (statement)* CL_CUR { whileFooter(while_local); };
 
 comparasion:
 	expression (
