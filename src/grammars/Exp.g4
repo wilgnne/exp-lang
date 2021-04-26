@@ -58,6 +58,7 @@ grammar Exp;
     symbol_table[index] = name.text;
 
     console.log("    istore", index);
+    console.log();
     updateStack(-1);
   }
 
@@ -226,11 +227,11 @@ main: { mainHeader(); } (statement)+ { mainFooter(); };
 
 statement:
 	st_print
-	| st_attrib { console.log(); }
+	| st_attrib
 	| st_if
 	| st_while
-	| BREAK { whileFlowControl(while_curr, 'END'); }
-	| CONTINUE { whileFlowControl(while_curr, 'BEGIN'); };
+	| st_break
+	| st_continue;
 
 st_print:
 	PRINT OP_PAR { getPrint(); } (
@@ -252,19 +253,24 @@ st_if:
     const main_if = current_if;
     let prevIsElse;
   } OP_CUR (statement*) (
-		CL_CUR { ifElseFooter(current_if, true, true, main_if) } ELSE IF comparasion {
+		CL_CUR { ifElseFooter(current_if, true, true, main_if); } ELSE IF comparasion {
       current_if = ifHeader();
 		} OP_CUR (statement*)
 	)* (
-		CL_CUR { ifElseFooter(current_if, true, true, main_if); prevIsElse = true; } ELSE OP_CUR (
-			statement*
-		)
-	)? CL_CUR { ifElseFooter(main_if, false, true, main_if, prevIsElse) };
+		CL_CUR {
+      ifElseFooter(current_if, true, true, main_if);
+      prevIsElse = true;
+    } ELSE OP_CUR (statement*)
+	)? CL_CUR { ifElseFooter(main_if, false, true, main_if, prevIsElse); };
 
 st_while:
 	WHILE { const while_local = whileHeader(); } comparasion {
     console.log(`END_WHILE_${while_local}\n`);
-	} OP_CUR (statement)* CL_CUR { whileFooter(while_local); };
+	} OP_CUR (statement*) CL_CUR { whileFooter(while_local); };
+
+st_break: BREAK { whileFlowControl(while_curr, 'END'); };
+
+st_continue: CONTINUE { whileFlowControl(while_curr, 'BEGIN'); };
 
 comparasion:
 	expression (
