@@ -3,6 +3,8 @@ grammar Exp;
 /*---------------- PARSER INTERNALS ----------------*/
 
 @parser::header {
+import { ifHeader, ifElseHeader, ifFooter, elseFooter } from '../utils/ifStatement.js'
+
   import { exit } from 'process';
 
   var symbol_table = Array();
@@ -60,25 +62,6 @@ grammar Exp;
     console.log("    istore", index);
     console.log();
     updateStack(-1);
-  }
-
-  function ifHeader() {
-    const if_local = if_curr;
-    console.log(`NOT_IF_${if_curr}`);
-    if_curr += 1;
-    return if_local;
-  }
-
-  function ifElseFooter(current, nextIsElse, ifEnd, main, prevIsElse) {
-    if (ifEnd) {
-      if (nextIsElse) {
-        console.log(`    goto END_ELSE_${main}\n`);
-      }
-      if (!prevIsElse)
-        console.log(`NOT_IF_${current}:`);
-    }
-    if (!nextIsElse)
-      console.log(`END_ELSE_${current}:\n`);
   }
 
   function whileHeader() {
@@ -248,20 +231,11 @@ st_print:
 st_attrib: NAME ATTRIB expression { attribution($NAME); };
 
 st_if:
-	IF comparasion {
-    let current_if = ifHeader();
-    const main_if = current_if;
-    let prevIsElse;
-  } OP_CUR (statement*) (
-		CL_CUR { ifElseFooter(current_if, true, true, main_if); } ELSE IF comparasion {
-      current_if = ifHeader();
-		} OP_CUR (statement*)
-	)* (
-		CL_CUR {
-      ifElseFooter(current_if, true, true, main_if);
-      prevIsElse = true;
-    } ELSE OP_CUR (statement*)
-	)? CL_CUR { ifElseFooter(main_if, false, true, main_if, prevIsElse); };
+	IF comparasion {ifHeader();} OP_CUR (statement*) (
+		CL_CUR {ifFooter();} ELSE IF comparasion {ifElseHeader();} OP_CUR (
+			statement*
+		)
+	)* {ifFooter();} (CL_CUR {} ELSE OP_CUR (statement*))? CL_CUR {elseFooter();};
 
 st_while:
 	WHILE { const while_local = whileHeader(); } comparasion {
