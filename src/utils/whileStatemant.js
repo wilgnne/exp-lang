@@ -1,5 +1,3 @@
-import { exit } from 'process';
-
 import compileTime from "./CompileTime.js";
 
 export function whileHeader() {
@@ -26,8 +24,8 @@ export function whileFooter() {
 export function whileFlowControl(tag) {
   const last = compileTime.while.stack.length - 1;
   if (last < 0) {
-    console.error(`'${tag === 'END' ? 'break' : 'continue'}' outside loop`)
-    exit(1)
+    console.error(`error: cannot use ${tag === 'END' ? 'break' : 'continue'} outside a loop`)
+    compileTime.error = true;
   }
 
   const curr = compileTime.while.stack[last]

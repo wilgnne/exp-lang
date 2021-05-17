@@ -20,6 +20,8 @@ export function programFooter() {
   const difference = rest.filter(x => !compileTime.symbol.used.includes(x));
   if (difference.length !== 0) {
     console.error("Unused Variables:", difference)
-    exit(2)
+    compileTime.error = true;
   }
+  if (compileTime.error)
+    exit(1);
 }

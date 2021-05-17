@@ -1,4 +1,5 @@
 const compileTime = {
+  error: false,
   symbol: {
     table: [],
     used: []

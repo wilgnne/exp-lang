@@ -1,5 +1,3 @@
-import { exit } from 'process';
-
 import compileTime, { updateStack } from "./CompileTime.js";
 
 export function number(value) {
@@ -11,7 +9,7 @@ export function name(value) {
   const index = compileTime.symbol.table.indexOf(value);
     if (index === -1) {
       console.error("Undefined Variable:", value)
-      exit(1)
+      compileTime.error = true;
     }
     compileTime.symbol.used[index] = value;
 

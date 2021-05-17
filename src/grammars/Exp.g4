@@ -42,8 +42,6 @@ import {
   number,
   name
 } from '../utils/value.js';
-
-import { exit } from 'process';
 }
 
 @parser::members {
@@ -135,9 +133,13 @@ comparasion:
 		op = (EQ | NE | GT | GE | LT | LE) expression { comparasion(ExpParser, $op); }
 	);
 
-expression: term ( op = (PLUS | SUB) term { expression(ExpParser, $op); })*;
+expression:
+	term (op = (PLUS | SUB) term { expression(ExpParser, $op); })*;
 
-term: factor ( op = (TIMES | DIV | MOD) factor { term(ExpParser, $op); })*;
+term:
+	factor (
+		op = (TIMES | DIV | MOD) factor { term(ExpParser, $op); }
+	)*;
 
 factor:
 	NUMBER { number($NUMBER.text); }
