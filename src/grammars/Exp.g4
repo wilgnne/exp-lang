@@ -3,7 +3,19 @@ grammar Exp;
 /*---------------- PARSER INTERNALS ----------------*/
 
 @parser::header {
-import { ifHeader, ifElseHeader, ifFooter, elseFooter } from '../utils/ifStatement.js'
+import {
+  ifHeader,
+  ifElseHeader,
+  ifFooter,
+  elseFooter
+} from '../utils/ifStatement.js';
+
+import {
+  whileHeader,
+  whileComparasion,
+  whileFooter,
+  whileFlowControl
+} from '../utils/whileStatemant.js';
 
   import { exit } from 'process';
 
@@ -11,9 +23,6 @@ import { ifHeader, ifElseHeader, ifFooter, elseFooter } from '../utils/ifStateme
   var used_table = Array();
   let stack_curr = 0;
   let stack_max = stack_curr;
-
-  let if_curr = 0;
-  let while_curr = -1;
 
   function programHeader() {
     // console.log(".source Test.src");
@@ -62,22 +71,6 @@ import { ifHeader, ifElseHeader, ifFooter, elseFooter } from '../utils/ifStateme
     console.log("    istore", index);
     console.log();
     updateStack(-1);
-  }
-
-  function whileHeader() {
-    while_curr += 1;
-    const while_local = while_curr;
-    console.log(`BEGIN_WHILE_${while_curr}:`);
-    return while_local;
-  }
-
-  function whileFooter(while_local) {
-    console.log(`    goto   BEGIN_WHILE_${while_local}`)
-    console.log(`END_WHILE_${while_local}:`);
-  }
-
-  function whileFlowControl(while_local, tag) {
-    console.log(`    goto ${tag}_WHILE_${while_local} ; ${tag === 'END' ? 'break' : 'continue'}`)
   }
 
   function comparasion(ExpParser, operator) {
@@ -238,13 +231,13 @@ st_if:
 	)* {ifFooter();} (CL_CUR {} ELSE OP_CUR (statement*))? CL_CUR {elseFooter();};
 
 st_while:
-	WHILE { const while_local = whileHeader(); } comparasion {
-    console.log(`END_WHILE_${while_local}\n`);
-	} OP_CUR (statement*) CL_CUR { whileFooter(while_local); };
+	WHILE { whileHeader(); } comparasion { whileComparasion(); } OP_CUR (
+		statement*
+	) CL_CUR { whileFooter(); };
 
-st_break: BREAK { whileFlowControl(while_curr, 'END'); };
+st_break: BREAK { whileFlowControl('END'); };
 
-st_continue: CONTINUE { whileFlowControl(while_curr, 'BEGIN'); };
+st_continue: CONTINUE { whileFlowControl('BEGIN'); };
 
 comparasion:
 	expression (
