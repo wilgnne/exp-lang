@@ -1,12 +1,12 @@
 import { updateStack } from "./CompileTime.js";
 
 export function readInt() {
-  console.log("    invokestatic Runtime/readInt()I");
+  console.log("    invokestatic Runtime/Input/readInt()I");
   updateStack(1);
 }
 
 export function readString() {
-  console.log("    invokestatic Runtime/readString()Ljava/lang/String;");
+  console.log("    invokestatic Runtime/Input/readString()Ljava/lang/String;");
   updateStack(1);
 }
 
