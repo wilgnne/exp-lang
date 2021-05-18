@@ -1,16 +1,35 @@
 import compileTime, { updateStack } from "./CompileTime.js";
 
-export function attribution(name) {
+export function attribution(type, name) {
+  console.log(`; type ${type}`);
+  const upcode = {
+    'int': 'istore',
+    'str': 'astore'
+  };
+
   let index = compileTime.symbol.table.indexOf(name.text);
+
+  if (index !== -1 && compileTime.symbol.type[index] !== type) {
+    console.error(`error: '${name.text}' is ${compileTime.symbol.type[index]}`);
+    compileTime.error = true;
+    return;
+  }
+
   index = index !== -1 ? index : compileTime.symbol.table.length;
   compileTime.symbol.table[index] = name.text;
+  compileTime.symbol.type[index] = type;
 
-  console.log("    istore", index);
+  console.log(`    ${upcode[type]}`, index);
   console.log();
   updateStack(-1);
 }
 
-export function comparasion(ExpParser, operator) {
+export function comparasion(ExpParser, operator, type1, type2) {
+  if (type1 !== type2 || type1 === 'str' || type2 === 'str') {
+    console.error(`error: cannot mix types`);
+    compileTime.error = true;
+  }
+
   const if_decoder = {
     [ExpParser.EQ]: "ne",
     [ExpParser.NE]: "eq",
@@ -23,14 +42,21 @@ export function comparasion(ExpParser, operator) {
   process.stdout.write(`\n    if_icmp${op} `);
 }
 
-export function expression(ExpParser, operator) {
+export function expression(ExpParser, operator, type1, type2) {
+  if (type1 !== type2 || type1 === 'str' || type2 === 'str') {
+    console.error(`error: cannot mix types`);
+    compileTime.error = true;
+  }
   if (operator.type === ExpParser.PLUS) console.log("    iadd");
   if (operator.type === ExpParser.SUB)  console.log("    isub");
   updateStack(-1);
 }
 
-export function term(ExpParser, operator) {
-  if (operator.type === ExpParser.PLUS) console.log("    iadd");
+export function term(ExpParser, operator, type1, type2) {
+  if (type1 !== type2 || type1 === 'str' || type2 === 'str') {
+    console.error(`error: cannot mix types`);
+    compileTime.error = true;
+  }
   if (operator.type === ExpParser.TIMES) console.log("    imul");
   if (operator.type === ExpParser.DIV)   console.log("    idiv");
   if (operator.type === ExpParser.MOD)   console.log("    irem");

@@ -6,7 +6,7 @@ function build_run(file, stdin) {
 
   const intermedietFile = `build/${basename}.j`
   try {
-    const compileOut = execSync(`node . ${file} > ${intermedietFile}`, { encoding: 'utf-8' })
+    const compileOut = execSync(`node . ${file} > ${intermedietFile}`, { encoding: 'utf-8', stdio : 'pipe' })
   } catch (error) {
     return error.stderr.split('\n')
   }

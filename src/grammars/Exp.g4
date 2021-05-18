@@ -32,7 +32,9 @@ import {
 
 import {
   readInt,
+  readString,
   getPrint,
+  print,
   printInt,
   printStr,
   println
@@ -40,6 +42,7 @@ import {
 
 import {
   number,
+  string,
   name
 } from '../utils/value.js';
 }
@@ -73,6 +76,7 @@ COMMA: ',';
 
 PRINT: 'print';
 READ_INT: 'read_int';
+READ_STR: 'read_str';
 
 IF: 'if';
 ELSE: 'else';
@@ -82,6 +86,7 @@ BREAK: 'break';
 CONTINUE: 'continue';
 
 NUMBER: '0' ..'9'+;
+STRING: '"' ~('"')* '"';
 NAME: 'a' ..'z'+;
 
 /*---------------- PARSER RULES ----------------*/
@@ -100,17 +105,18 @@ statement:
 
 st_print:
 	PRINT OP_PAR { getPrint(); } (
-		expression { printInt(); getPrint(); } (
+		exp1 = expression { print($exp1.type); getPrint(); } (
 			COMMA {
         console.log('    ldc " "')
         updateStack(1)
         printStr();
         getPrint();
-      } expression { printInt(); getPrint(); }
+      } exp2 = expression { print($exp2.type); getPrint(); }
 		)*
 	)? CL_PAR { println(); };
 
-st_attrib: NAME ATTRIB expression { attribution($NAME); };
+st_attrib:
+	NAME ATTRIB exp = expression { attribution($exp.type, $NAME); };
 
 st_if:
 	IF comparasion {ifHeader();} OP_CUR (statement*) (
@@ -129,20 +135,28 @@ st_break: BREAK { whileFlowControl('END'); };
 st_continue: CONTINUE { whileFlowControl('BEGIN'); };
 
 comparasion:
-	expression (
-		op = (EQ | NE | GT | GE | LT | LE) expression { comparasion(ExpParser, $op); }
+	exp1 = expression (
+		op = (EQ | NE | GT | GE | LT | LE)
+    exp2 = expression { comparasion(ExpParser, $op, $exp1.type, $exp2.type); }
 	);
 
-expression:
-	term (op = (PLUS | SUB) term { expression(ExpParser, $op); })*;
+expression
+	returns[type]:
+	t1 = term (
+		op = (PLUS | SUB) t2 = term { expression(ExpParser, $op, $t1.type, $t2.type); }
+	)* { $type = $t1.type; };
 
-term:
-	factor (
-		op = (TIMES | DIV | MOD) factor { term(ExpParser, $op); }
-	)*;
+term
+	returns[type]:
+	f1 = factor (
+		op = (TIMES | DIV | MOD) f2 = factor { term(ExpParser, $op, $f1.type, $f2.type); }
+	)* { $type = $f1.type; };
 
-factor:
-	NUMBER { number($NUMBER.text); }
-	| OP_PAR expression CL_PAR
-	| NAME { name($NAME.text); }
-	| READ_INT OP_PAR CL_PAR { readInt(); };
+factor
+	returns[type]:
+	NUMBER { number($NUMBER.text); $type = 'int'; }
+	| STRING { string($STRING.text); $type = 'str'; }
+	| OP_PAR exp = expression { $type = $exp.type; } CL_PAR
+	| NAME { $type = name($NAME.text); }
+	| READ_INT OP_PAR CL_PAR { readInt(); $type = 'int'; }
+	| READ_STR OP_PAR CL_PAR { readString(); $type = 'str'; };

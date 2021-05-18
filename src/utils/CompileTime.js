@@ -2,6 +2,7 @@ const compileTime = {
   error: false,
   symbol: {
     table: [],
+    type: [],
     used: []
   },
   stack: {
@@ -19,8 +20,6 @@ const compileTime = {
 }
 
 export function updateStack(sideEffect) {
-  // console.log("; ", stack_curr, stack_max, sideEffect)
-
   compileTime.stack.curr += sideEffect;
   if (compileTime.stack.curr > compileTime.stack.max) {
     compileTime.stack.max = compileTime.stack.curr
