@@ -1,32 +1,41 @@
 import compileTime, { updateStack } from "./CompileTime.js";
+import { arrayGet, arrayLength, arrayPush, arraySet } from "./array.js";
 
-export function attribution(type, name) {
-  console.log(`; type ${type}`);
+export function attribution(type, name, line) {
   const upcode = {
     'int': 'istore',
-    'str': 'astore'
+    'str': 'astore',
+    'array': 'astore'
   };
 
   let index = compileTime.symbol.table.indexOf(name.text);
 
-  if (index !== -1 && compileTime.symbol.type[index] !== type) {
-    console.error(`error: '${name.text}' is ${compileTime.symbol.type[index]}`);
-    compileTime.error = true;
-    return;
+  if (index !== -1) {
+    if (type === 'array') {
+      console.error(`error: '${name.text}' is already declared at line ${line}`);
+      compileTime.error = true;
+      return;
+    }
+    if (compileTime.symbol.type[index] !== type) {
+      console.error(`error: '${name.text}' is ${compileTime.symbol.type[index]} at line ${line}`);
+      compileTime.error = true;
+      return;
+    }
   }
 
   index = index !== -1 ? index : compileTime.symbol.table.length;
   compileTime.symbol.table[index] = name.text;
   compileTime.symbol.type[index] = type;
+  compileTime.symbol.line[index] = line;
 
   console.log(`    ${upcode[type]}`, index);
   console.log();
   updateStack(-1);
 }
 
-export function comparasion(ExpParser, operator, type1, type2) {
+export function comparasion(ExpParser, operator, type1, type2, line) {
   if (type1 !== type2 || type1 === 'str' || type2 === 'str') {
-    console.error(`error: cannot mix types`);
+    console.error(`error: cannot mix types at line ${line}`);
     compileTime.error = true;
   }
 
@@ -42,9 +51,9 @@ export function comparasion(ExpParser, operator, type1, type2) {
   process.stdout.write(`\n    if_icmp${op} `);
 }
 
-export function expression(ExpParser, operator, type1, type2) {
+export function expression(ExpParser, operator, type1, type2, line) {
   if (type1 !== type2 || type1 === 'str' || type2 === 'str') {
-    console.error(`error: cannot mix types`);
+    console.error(`error: cannot mix types at line ${line}`);
     compileTime.error = true;
   }
   if (operator.type === ExpParser.PLUS) console.log("    iadd");
@@ -52,13 +61,28 @@ export function expression(ExpParser, operator, type1, type2) {
   updateStack(-1);
 }
 
-export function term(ExpParser, operator, type1, type2) {
+export function term(ExpParser, operator, type1, type2, line) {
   if (type1 !== type2 || type1 === 'str' || type2 === 'str') {
-    console.error(`error: cannot mix types`);
+    console.error(`error: cannot mix types at line ${line}`);
     compileTime.error = true;
   }
   if (operator.type === ExpParser.TIMES) console.log("    imul");
   if (operator.type === ExpParser.DIV)   console.log("    idiv");
   if (operator.type === ExpParser.MOD)   console.log("    irem");
   updateStack(-1);
+}
+
+export function propty(type, propName, prop) {
+  const properties = {
+    'array': {
+      'push': arrayPush,
+      'length': arrayLength,
+      'get_item': arrayGet,
+      'set_item': arraySet
+    }
+  }
+  const property = properties[type]
+  const func = property ? property[propName] : undefined
+
+  if (func) return func(prop)
 }

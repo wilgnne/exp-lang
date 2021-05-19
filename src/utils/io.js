@@ -1,3 +1,4 @@
+import { arrayToString } from "./array.js";
 import { updateStack } from "./CompileTime.js";
 
 export function readInt() {
@@ -32,6 +33,10 @@ export function print(type) {
     printInt()
   } else if (type === 'str') {
     printStr()
+  }
+  else if (type === 'array') {
+    arrayToString();
+    printStr();
   }
 }
 

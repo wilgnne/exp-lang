@@ -9,10 +9,10 @@ describe('Array', () => {
   });
 
   test("Print [1, 4, 9, 16]", () => {
-    expect(out[0]).toBe("[1, 4, 9, 16]");
+    expect(out[1]).toBe("[1, 4, 9, 16]");
   })
 
   test("No more outputs", () => {
-    expect(out[1]).toBe("");
+    expect(out[2]).toBe("");
   })
 })
