@@ -2,6 +2,7 @@ import compileTime, { updateStack } from "./CompileTime.js";
 import { arrayGet, arrayLength, arrayPush, arraySet } from "./array.js";
 
 export function attribution(type, name, line) {
+  console.log('; attr', type);
   const upcode = {
     'int': 'istore',
     'str': 'astore',
@@ -11,6 +12,7 @@ export function attribution(type, name, line) {
   let index = compileTime.symbol.table.indexOf(name.text);
 
   if (index !== -1) {
+    if (type === undefined) return;
     if (type === 'array') {
       console.error(`error: '${name.text}' is already declared at line ${line}`);
       compileTime.error = true;
@@ -34,7 +36,7 @@ export function attribution(type, name, line) {
 }
 
 export function comparasion(ExpParser, operator, type1, type2, line) {
-  if (type1 !== type2 || type1 === 'str' || type2 === 'str') {
+  if (type1 !== type2 || type1 === 'str' || type2 === 'str' || type1 === 'array' || type2 === 'array') {
     console.error(`error: cannot mix types at line ${line}`);
     compileTime.error = true;
   }
@@ -52,7 +54,7 @@ export function comparasion(ExpParser, operator, type1, type2, line) {
 }
 
 export function expression(ExpParser, operator, type1, type2, line) {
-  if (type1 !== type2 || type1 === 'str' || type2 === 'str') {
+  if (type1 !== type2 || type1 === 'str' || type2 === 'str' || type1 === 'array' || type2 === 'array') {
     console.error(`error: cannot mix types at line ${line}`);
     compileTime.error = true;
   }
@@ -62,7 +64,7 @@ export function expression(ExpParser, operator, type1, type2, line) {
 }
 
 export function term(ExpParser, operator, type1, type2, line) {
-  if (type1 !== type2 || type1 === 'str' || type2 === 'str') {
+  if (type1 !== type2 || type1 === 'str' || type2 === 'str' || type1 === 'array' || type2 === 'array') {
     console.error(`error: cannot mix types at line ${line}`);
     compileTime.error = true;
   }
@@ -72,7 +74,7 @@ export function term(ExpParser, operator, type1, type2, line) {
   updateStack(-1);
 }
 
-export function propty(type, propName, prop) {
+export function propty(name, type, propName, prop, line) {
   const properties = {
     'array': {
       'push': arrayPush,
@@ -84,5 +86,15 @@ export function propty(type, propName, prop) {
   const property = properties[type]
   const func = property ? property[propName] : undefined
 
-  if (func) return func(prop)
+
+  if (func) {
+    const ret = func({ ...prop, line, name, type });
+    console.log('; propty', ret);
+    return ret;
+  }
+
+  if (type !== undefined) {
+    console.error(`error: '${name}' is not array at line ${line}`)
+    compileTime.error = true;
+  }
 }

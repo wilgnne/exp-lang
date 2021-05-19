@@ -134,7 +134,7 @@ attr_direct:
 	NAME ATTRIB exp = expression { attribution($exp.type, $NAME, $NAME.line); };
 
 attr_index:
-	f = factor OP_BRA index = expression CL_BRA ATTRIB value = expression { propty($f.type, 'set_item', { index: $index.type, value: $value.type })
+	f = factor line = OP_BRA index = expression CL_BRA ATTRIB value = expression { propty($f.text, $f.type, 'set_item', { index: $index.type, value: $value.type }, $line.line)
 		};
 
 st_if:
@@ -173,49 +173,92 @@ term
 
 factor
 	returns[type]:
-	fconst = fa_const { $type = $fconst.type; }
-	| fvar = fa_var { $type = $fvar.type; }
-	| io = fa_io { $type = $io.type; }
-	| pr = propty { $type = $pr.type; };
+	pr = propty { $type = $pr.type; }
+	| f = fac { $type = $f.type; };
+
+fac
+	returns[type, text]:
+	fconst = fa_const {
+    $type = $fconst.type;
+    $text = $fconst.text;
+  }
+	| fvar = fa_var {
+    $type = $fvar.type;
+    $text = $fvar.text;
+  }
+	| io = fa_io {
+    $type = $io.type;
+    $text = $io.text;
+  };
 
 fa_const
-	returns[type]:
-	NUMBER { number($NUMBER.text); $type = 'int'; }
-	| STRING { string($STRING.text); $type = 'str'; }
-	| OP_BRA CL_BRA { array(); $type = 'array'; };
+	returns[type, text]:
+	NUMBER {
+    number($NUMBER.text);
+    $type = 'int';
+    $text = $NUMBER.text
+  }
+	| STRING {
+    string($STRING.text);
+    $type = 'str';
+    $text = $STRING.text
+  }
+	| OP_BRA CL_BRA {
+    array();
+    $type = 'array';
+    $text = '[]';
+  };
 
 fa_io
-	returns[type]:
-	READ_INT OP_PAR CL_PAR { readInt(); $type = 'int'; }
-	| READ_STR OP_PAR CL_PAR { readString(); $type = 'str'; };
+	returns[type, text]:
+	READ_INT OP_PAR CL_PAR {
+    readInt();
+    $type = 'int';
+    $text = 'read_int()';
+  }
+	| READ_STR OP_PAR CL_PAR {
+    readString();
+    $type = 'str';
+    $text = 'read_str()';
+  };
 
 fa_var
-	returns[type]:
-	NAME { $type = name($NAME.text, $NAME.line); }
-	| OP_PAR exp = expression { $type = $exp.type; } CL_PAR;
+	returns[type, text]:
+	NAME {
+    $type = name($NAME.text, $NAME.line);
+    $text = $NAME.text;
+  }
+	| OP_PAR exp = expression {
+    $type = $exp.type;
+    $text = 'expression result';
+  } CL_PAR;
 
 propty
 	returns[type]:
-	push = pr_push { $type = $push.type; }
-	| len = pr_length { $type = $len.type; }
-	| get = pr_get_item { $type = $get.type; };
+	f = fac ret = rc_prop[localctx.f] { $type = $ret.type; };
 
-pr_factor
+rc_prop[father]
 	returns[type]:
-	fconst = fa_const { $type = $fconst.type; }
-	| fvar = fa_var { $type = $fvar.type; }
-	| io = fa_io { $type = $io.type; };
+	push = pr_push[father] (
+		prop = rc_prop[localctx.push]
+	)? { $type = localctx.prop ? $prop.type : $push.type }
+	| len = pr_length[father] (
+		prop = rc_prop[localctx.len]
+	)? { $type = localctx.prop ? $prop.type : $len.type }
+	| get = pr_get_item[father] (
+		prop = rc_prop[localctx.get]
+	)? { $type = localctx.prop ? $prop.type : $get.type };
 
-pr_push
+pr_push[father]
 	returns[type]:
-	f = pr_factor DOT PUSH OP_PAR exp = expression { $type = propty($f.type, 'push');
+	line = DOT PUSH OP_PAR exp = expression { $type = propty(father.text, father.type, 'push', { value: $exp.type }, $line.line);
 		} CL_PAR;
 
-pr_length
+pr_length[father]
 	returns[type]:
-	f = pr_factor DOT LENGTH { $type = propty($f.type, 'length'); };
+	line = DOT LENGTH { $type = propty(father.text, father.type, 'length', {}, $line.line); };
 
-pr_get_item
+pr_get_item[father]
 	returns[type]:
-	f = pr_factor OP_BRA (exp = expression) CL_BRA { $type = propty($f.type, 'get_item', $exp.type)
+	line = OP_BRA (exp = expression) CL_BRA { $type = propty(father.text, father.type, 'get_item', { index: $exp.type }, $line.line)
 		};

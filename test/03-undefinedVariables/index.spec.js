@@ -8,7 +8,7 @@ describe('Undefined Variables', () => {
     out = build_run(path.resolve(__dirname, 'undefinedVariables.exp'))
   });
 
-  test("Undefined Variable: y", () => {
-    expect(out[0]).toBe('Undefined Variable: y');
+  test("error: 'y' not defined at line 3", () => {
+    expect(out[0]).toBe("error: 'y' not defined at line 3");
   })
 })

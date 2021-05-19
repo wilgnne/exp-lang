@@ -18,7 +18,7 @@ a[s] = 2        # error: array index must be integer
 i[0] = 2        # error: 'i' is not array
 a[0] = a        # error: 'a' is array
 a[0] = s        # error: 'a' is array
-s[0] = 2        # error: 'i' is not array
+s[0] = 2        # error: 's' is not array
 x[0] = 2        # error: 'x' not defined
 
 i = a           # error: 'i' is integer
@@ -27,10 +27,10 @@ i = s[0]        # error: 's' is not array
 i = x[0]        # error: 'x' not defined
 
 i = i.length    # error: 'i' must be array
-i = s.length    # error: 'i' must be array
+i = s.length    # error: 's' must be array
 i = x.length    # error: 'x' not defined
 
-s = a
+s = a           # error: 's' is str
 
 print(a + a)    # error: cannot mix types
 print(a - i)    # error: cannot mix types

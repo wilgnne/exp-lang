@@ -3,7 +3,8 @@ const compileTime = {
   symbol: {
     table: [],
     type: [],
-    used: []
+    used: [],
+    line: []
   },
   stack: {
     curr: 0,

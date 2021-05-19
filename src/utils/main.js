@@ -2,14 +2,15 @@ import compileTime from "./CompileTime.js";
 
 export function mainHeader() {
   console.log(".method public static main([Ljava/lang/String;)V");
+  console.log("");
   compileTime.symbol.table.push('args')
 }
 
 export function mainFooter() {
   console.log("    return");
   console.log();
-  console.log(".limit stack", compileTime.stack.max);
-  console.log(".limit locals", compileTime.symbol.table.length);
+  console.log("    .limit stack", compileTime.stack.max);
+  console.log("    .limit locals", compileTime.symbol.table.length);
   console.log(".end method");
 
   console.log();

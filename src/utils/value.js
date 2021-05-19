@@ -20,8 +20,9 @@ export function array () {
 export function name(value, line) {
   const index = compileTime.symbol.table.indexOf(value);
   if (index === -1) {
-    console.error(`Undefined Variable: ${value} at line ${line}`)
+    console.error(`error: '${value}' not defined at line ${line}`)
     compileTime.error = true;
+    return;
   }
   compileTime.symbol.used[index] = value;
 

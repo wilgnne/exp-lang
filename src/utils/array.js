@@ -1,20 +1,25 @@
 import compileTime, { updateStack } from './CompileTime.js';
 
-export function arrayLength() {
+export function arrayLength({ type, line, name }) {
   console.log('    invokevirtual Runtime/Array/length()I');
   updateStack(0);
   return 'int';
 }
 
-export function arrayPush() {
+export function arrayPush({ value, line }) {
+  if (value !== 'int') {
+    console.error(`error: array value must be integer at line ${line}`);
+    compileTime.error = true;
+    return;
+  }
   console.log('    invokevirtual Runtime/Array/push(I)LRuntime/Array;')
   updateStack(-1);
   return 'array';
 }
 
-export function arrayGet(indexType) {
-  if (indexType !== 'int') {
-    console.error(`error: array index must be integer`);
+export function arrayGet({ array, index, line }) {
+  if (index !== 'int') {
+    console.error(`error: array index must be int at line ${line}`);
     compileTime.error = true;
     return;
   }
@@ -23,14 +28,14 @@ export function arrayGet(indexType) {
   return 'int';
 }
 
-export function arraySet({ index, value }) {
+export function arraySet({ index, value, line, name }) {
   if (index !== 'int') {
-    console.error(`error: array index must be integer`);
+    console.error(`error: array index must be int at line ${line}`);
     compileTime.error = true;
     return;
   }
   if (value !== 'int') {
-    console.error(`error: array value must be integer`);
+    console.error(`error: '${name}' is array at line ${line}`);
     compileTime.error = true;
     return;
   }
