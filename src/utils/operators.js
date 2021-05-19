@@ -36,7 +36,7 @@ export function attribution(type, name, line) {
 }
 
 export function comparasion(ExpParser, operator, type1, type2, line) {
-  if (type1 !== type2 || type1 === 'str' || type2 === 'str' || type1 === 'array' || type2 === 'array') {
+  if (type1 !== type2 || type1 !== 'int' || type2 !== 'int') {
     console.error(`error: cannot mix types at line ${line}`);
     compileTime.error = true;
   }
@@ -54,7 +54,7 @@ export function comparasion(ExpParser, operator, type1, type2, line) {
 }
 
 export function expression(ExpParser, operator, type1, type2, line) {
-  if (type1 !== type2 || type1 === 'str' || type2 === 'str' || type1 === 'array' || type2 === 'array') {
+  if (type1 !== type2 || type1 !== 'int' || type2 !== 'int') {
     console.error(`error: cannot mix types at line ${line}`);
     compileTime.error = true;
   }
@@ -64,7 +64,7 @@ export function expression(ExpParser, operator, type1, type2, line) {
 }
 
 export function term(ExpParser, operator, type1, type2, line) {
-  if (type1 !== type2 || type1 === 'str' || type2 === 'str' || type1 === 'array' || type2 === 'array') {
+  if (type1 !== type2 || type1 !== 'int' || type2 !== 'int') {
     console.error(`error: cannot mix types at line ${line}`);
     compileTime.error = true;
   }
