@@ -130,12 +130,12 @@ main: { mainHeader(); } (statement)* { mainFooter(); };
 
 statement:
 	st_print
-  | st_return
+	| st_return
 	| st_if
 	| st_while
 	| st_break
 	| st_continue
-  |  st_attrib
+	| st_attrib
 	| exp = expression {
     if ($exp.type !== 'void') console.log('    pop');
   };
@@ -248,7 +248,7 @@ fa_io
 
 fa_var
 	returns[type, text]:
-  call = st_call {
+	call = st_call {
     $type = $call.type;
     $text = $call.text;
   }
@@ -261,12 +261,17 @@ fa_var
     $text = 'expression result';
   } CL_PAR;
 
-st_call returns[type, text]: NAME OP_PAR (args)? CL_PAR {
-  $type = defCall($NAME.text);
-  $text = $NAME.text;
-};
+st_call
+	returns[type, text]:
+	NAME OP_PAR (args)? CL_PAR {
+    $type = defCall($NAME.text);
+    $text = $NAME.text;
+  };
 
-args: exp1 = expression { defArgs($exp1.type); } (COMMA exp2 = expression { defArgs($exp2.type); })*;
+args:
+	exp1 = expression { defArgs($exp1.type); } (
+		COMMA exp2 = expression { defArgs($exp2.type); }
+	)*;
 
 propty
 	returns[type]:
