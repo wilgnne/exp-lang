@@ -16,14 +16,13 @@ export function programHeader() {
 }
 
 export function programFooter() {
-  const [_, ...rest] = compileTime.symbol.table
-  const difference = rest.filter(x => !compileTime.symbol.used.includes(x));
-  difference.forEach(variable => {
-    const line = compileTime.symbol.line[compileTime.symbol.table.indexOf(variable)];
-    console.error(`error: '${variable}' is defined but never used at line ${line}`)
+  const unused = compileTime.symbol.filter(value => value.used === false);
+
+  unused.forEach(variable => {
+    console.error(`error: '${variable.name}' is defined but never used at line ${variable.line}`)
   })
 
-  if (difference.length > 0) {
+  if (unused.length > 0) {
     compileTime.error = true;
   }
   if (compileTime.error)

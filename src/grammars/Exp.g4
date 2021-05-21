@@ -3,11 +3,19 @@ grammar Exp;
 /*---------------- PARSER INTERNALS ----------------*/
 
 @parser::header {
-import { updateStack } from '../utils/CompileTime.js';
+import compileTime, { updateStack } from '../utils/CompileTime.js';
 
 import { programHeader, programFooter } from '../utils/program.js';
 
 import { mainHeader, mainFooter } from '../utils/main.js';
+
+import {
+  defHeader,
+  defFooter,
+  defCall,
+  defParameters,
+  defArgs
+} from '../utils/def.js';
 
 import {
   attribution,
@@ -78,6 +86,7 @@ CL_BRA: ']';
 ATTRIB: '=';
 COMMA: ',';
 DOT: '.';
+DDOT: ':';
 
 PRINT: 'print';
 READ_INT: 'read_int';
@@ -93,28 +102,41 @@ CONTINUE: 'continue';
 LENGTH: 'length';
 PUSH: 'push';
 
+DEF: 'def';
+
 NUMBER: '0' ..'9'+;
 STRING: '"' ~('"')* '"';
 NAME: 'a' ..'z'+;
 
 /*---------------- PARSER RULES ----------------*/
 
-program: { programHeader(); } main { programFooter(); };
+program: { programHeader(); } (def)* main { programFooter(); };
 
-main: { mainHeader(); } (statement)+ { mainFooter(); };
+def:
+	DEF NAME OP_PAR (parameters)? CL_PAR ( DDOT t = NAME)? OP_CUR { defHeader($NAME.text, $t.text); } (
+		statement
+	)* CL_CUR { defFooter(); };
+
+parameters:
+	n1 = NAME DDOT t1 = NAME { defParameters($n1.text, $t1.text); } (
+		COMMA n2 = NAME DDOT t2 = NAME { defParameters($n2.text, $t2.text); }
+	)*;
+
+main: { mainHeader(); } (statement)* { mainFooter(); };
 
 statement:
 	st_print
 	| st_attrib
-	| expression { console.log('    pop') }
+  | st_call
+	| exp = expression { if ($exp.type !== 'void') console.log('    pop'); }
 	| st_if
 	| st_while
 	| st_break
 	| st_continue;
 
-st_array_new: NAME ATTRIB OP_BRA CL_BRA;
-st_array_push: NAME DOT PUSH OP_PAR expression CL_PAR;
-st_array_set: NAME OP_BRA expression CL_BRA ATTRIB expression;
+st_call: NAME OP_PAR (args)? CL_PAR { defCall($NAME.text); };
+
+args: exp1 = expression { defArgs($exp1.type); } (COMMA exp2 = expression { defArgs($exp2.type); })*;
 
 st_print:
 	PRINT OP_PAR { getPrint(); } (

@@ -1,11 +1,16 @@
+
+//{
+//  table: [],
+//  type: [],
+//  used: [],
+// line: []
+//}
 const compileTime = {
+  name: '',
   error: false,
-  symbol: {
-    table: [],
-    type: [],
-    used: [],
-    line: []
-  },
+  def: [],
+  args: [],
+  symbol: [],
   stack: {
     curr: 0,
     max: 0

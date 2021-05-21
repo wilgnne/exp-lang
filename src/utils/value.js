@@ -18,22 +18,23 @@ export function array () {
 }
 
 export function name(value, line) {
-  const index = compileTime.symbol.table.indexOf(value);
-  if (index === -1) {
+  const target = compileTime.symbol.find(symbol => symbol.name === value);
+
+  if (target === undefined) {
     console.error(`error: '${value}' not defined at line ${line}`)
     compileTime.error = true;
     return;
   }
-  compileTime.symbol.used[index] = value;
+  target.used = true;
 
   const upcode = {
     'int': 'iload',
     'str': 'aload',
     'array': 'aload'
   };
-  const type = compileTime.symbol.type[index];
+  const type = target.type;
 
-  console.log(`    ${upcode[type]}`, index);
+  console.log(`    ${upcode[type]}`, compileTime.symbol.indexOf(target));
   updateStack(1);
   return type;
 }
