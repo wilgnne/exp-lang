@@ -1,4 +1,4 @@
-import compileTime from "./CompileTime.js";
+import compileTime, { updateStack } from "./CompileTime.js";
 
 function hasDuplicates(array) {
   return (new Set(array)).size !== array.length;
@@ -8,11 +8,11 @@ const typesMap = {
   'void': 'V',
   'int': 'I',
   'str': 'Ljava/lang/String;',
-  'array': 'LRuntime/Array;',
-  null: 'V'
+  'array': 'LRuntime/Array;'
 }
 
 export function defHeader(name, type = 'void') {
+  type = type === null ? 'void' : type;
   if (hasDuplicates(compileTime.symbol.map(value => value.name))) {
     console.error(`error: parameter names must be unique`);
     compileTime.error = true;
@@ -29,19 +29,58 @@ export function defHeader(name, type = 'void') {
 
   console.log(`.method public static ${name}(${jvmArgs})${jvmType}`);
   console.log("");
-  compileTime.def.push({ name, parametersType, type })
+  compileTime.def.push({ name, parametersType, type, returned: type === 'void' })
 }
 
-export function defFooter() {
-  console.log("    return");
+export function defReturn(expressionType) {
+  expressionType = expressionType === null ? 'void' : expressionType;
+  const def = compileTime.def[compileTime.def.length -1]
+  const type = def.type;
+
+  def.returned = true;
+
+  if (expressionType !== type) {
+    console.error(`error: return value must be of ${type} type`);
+    compileTime.error = true;
+  }
+
+  const typesMap = {
+    'void': '',
+    'int': 'i',
+    'str': 'a',
+    'array': 'a'
+  }
+
+  console.log(`    ${typesMap[type]}return`);
+}
+
+export function defFooter(type) {
+  type = type === null ? 'void' : type;
+  const typesMap = {
+    'void': '',
+    'int': 'i',
+    'str': 'a',
+    'array': 'a'
+  }
+
+  const def = compileTime.def[compileTime.def.length -1]
+  if (def.returned === false) {
+    console.error(`error: missing return statement in returning function`);
+    compileTime.error = true;
+  }
+
+  console.log(`    ${typesMap[type]}return`);
   console.log();
   console.log("    .limit stack", compileTime.stack.max);
   console.log("    .limit locals", compileTime.symbol.length);
   console.log(".end method");
-
-  console.log();
   console.log("; symbol_table: ", compileTime.symbol.map(value => value.name));
+  console.log();
   compileTime.symbol = [];
+  compileTime.stack = {
+    curr: 0,
+    max: 0
+  }
 }
 
 export function defCall(name) {
@@ -49,27 +88,24 @@ export function defCall(name) {
   if (def === undefined) {
     console.error(`error: function '${name}' is not declared`);
     compileTime.error = true;
-    return;
+    return 'void';
   }
 
   const callArgs = compileTime.args;
   const defArgs = def.parametersType;
 
-  console.log('; callArgs', callArgs, callArgs.length);
-  console.log('; defArgs', defArgs, defArgs.length);
-
-  if (defArgs.length !== callArgs.length ) {
+  if (defArgs.length !== callArgs.length) {
     console.error(`error: wrong number of arguments`);
     compileTime.error = true;
     compileTime.args = [];
-    return;
+    return 'void';
   }
 
   if (JSON.stringify(defArgs) !== JSON.stringify(callArgs)) {
     console.error(`error: types don't match`);
     compileTime.error = true;
     compileTime.args = [];
-    return;
+    return 'void';
   }
 
   compileTime.args = [];
@@ -77,6 +113,9 @@ export function defCall(name) {
   const jvmArgs = defArgs.map(value => typesMap[value]).join('');
   const jvmType = typesMap[def.type]
   console.log(`    invokestatic ${compileTime.name}/${name}(${jvmArgs})${jvmType}`)
+
+  updateStack(defArgs.length - def.type === 'void' ? 0 : 1)
+
   return def.type;
 }
 

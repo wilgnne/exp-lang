@@ -14,7 +14,8 @@ import {
   defFooter,
   defCall,
   defParameters,
-  defArgs
+  defArgs,
+  defReturn
 } from '../utils/def.js';
 
 import {
@@ -103,6 +104,7 @@ LENGTH: 'length';
 PUSH: 'push';
 
 DEF: 'def';
+RETURN: 'return';
 
 NUMBER: '0' ..'9'+;
 STRING: '"' ~('"')* '"';
@@ -113,30 +115,30 @@ NAME: 'a' ..'z'+;
 program: { programHeader(); } (def)* main { programFooter(); };
 
 def:
-	DEF NAME OP_PAR (parameters)? CL_PAR ( DDOT t = NAME)? OP_CUR { defHeader($NAME.text, $t.text); } (
+	DEF NAME OP_PAR (parameters)? CL_PAR (t = NAME)? OP_CUR { defHeader($NAME.text, $t.text); } (
 		statement
-	)* CL_CUR { defFooter(); };
+	)* CL_CUR { defFooter($t.text); };
 
 parameters:
 	n1 = NAME DDOT t1 = NAME { defParameters($n1.text, $t1.text); } (
 		COMMA n2 = NAME DDOT t2 = NAME { defParameters($n2.text, $t2.text); }
 	)*;
 
+st_return: RETURN (exp = expression)? { defReturn($exp.type); };
+
 main: { mainHeader(); } (statement)* { mainFooter(); };
 
 statement:
 	st_print
-	| st_attrib
-  | st_call
-	| exp = expression { if ($exp.type !== 'void') console.log('    pop'); }
+  | st_return
 	| st_if
 	| st_while
 	| st_break
-	| st_continue;
-
-st_call: NAME OP_PAR (args)? CL_PAR { defCall($NAME.text); };
-
-args: exp1 = expression { defArgs($exp1.type); } (COMMA exp2 = expression { defArgs($exp2.type); })*;
+	| st_continue
+  |  st_attrib
+	| exp = expression {
+    if ($exp.type !== 'void') console.log('    pop');
+  };
 
 st_print:
 	PRINT OP_PAR { getPrint(); } (
@@ -246,7 +248,11 @@ fa_io
 
 fa_var
 	returns[type, text]:
-	NAME {
+  call = st_call {
+    $type = $call.type;
+    $text = $call.text;
+  }
+	| NAME {
     $type = name($NAME.text, $NAME.line);
     $text = $NAME.text;
   }
@@ -254,6 +260,13 @@ fa_var
     $type = $exp.type;
     $text = 'expression result';
   } CL_PAR;
+
+st_call returns[type, text]: NAME OP_PAR (args)? CL_PAR {
+  $type = defCall($NAME.text);
+  $text = $NAME.text;
+};
+
+args: exp1 = expression { defArgs($exp1.type); } (COMMA exp2 = expression { defArgs($exp2.type); })*;
 
 propty
 	returns[type]:

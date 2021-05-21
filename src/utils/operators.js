@@ -6,8 +6,15 @@ export function attribution(type, name, line) {
   const upcode = {
     'int': 'istore',
     'str': 'astore',
-    'array': 'astore'
+    'array': 'astore',
+    'void': '; error: void store'
   };
+
+  if (type === 'void') {
+    console.error(`error: the void type cannot be assigned in '${name.text}' at line ${line}`);
+    compileTime.error = true;
+    return;
+  }
 
   let target = compileTime.symbol.find(value => value.name === name.text);
 
@@ -86,6 +93,14 @@ export function propty(name, type, propName, prop, line) {
       'set_item': arraySet
     }
   }
+
+  const returnType = {
+    'push': 'array',
+    'length': 'int',
+    'get_item': 'int',
+    'set_item': 'void'
+  }
+
   const property = properties[type]
   const func = property ? property[propName] : undefined
 
@@ -96,8 +111,10 @@ export function propty(name, type, propName, prop, line) {
     return ret;
   }
 
-  if (type !== undefined) {
+  if (type !== 'void') {
     console.error(`error: '${name}' is not array at line ${line}`)
     compileTime.error = true;
   }
+
+  return returnType[propName];
 }

@@ -10,7 +10,7 @@ export function arrayPush({ value, line }) {
   if (value !== 'int') {
     console.error(`error: array value must be integer at line ${line}`);
     compileTime.error = true;
-    return;
+    return 'array';
   }
   console.log('    invokevirtual Runtime/Array/push(I)LRuntime/Array;')
   updateStack(-1);
@@ -21,7 +21,7 @@ export function arrayGet({ array, index, line }) {
   if (index !== 'int') {
     console.error(`error: array index must be int at line ${line}`);
     compileTime.error = true;
-    return;
+    return 'int';
   }
   console.log('    invokevirtual Runtime/Array/get(I)I');
   updateStack(-1);
@@ -32,16 +32,16 @@ export function arraySet({ index, value, line, name }) {
   if (index !== 'int') {
     console.error(`error: array index must be int at line ${line}`);
     compileTime.error = true;
-    return;
+    return 'void';
   }
   if (value !== 'int') {
     console.error(`error: '${name}' is array at line ${line}`);
     compileTime.error = true;
-    return;
+    return 'void';
   }
   console.log('    invokevirtual Runtime/Array/set(II)V');
   updateStack(-3);
-  return 'int';
+  return 'void';
 }
 
 export function arrayToString() {

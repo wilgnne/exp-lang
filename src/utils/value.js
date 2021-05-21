@@ -23,7 +23,7 @@ export function name(value, line) {
   if (target === undefined) {
     console.error(`error: '${value}' not defined at line ${line}`)
     compileTime.error = true;
-    return;
+    return 'void';
   }
   target.used = true;
 

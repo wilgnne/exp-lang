@@ -1,0 +1,20 @@
+# errors for complete functions
+
+def fw() int {
+    return "ab"    # error: return value must be of integer type
+}
+
+def fx(a: int) {
+    return 0       # error: a void function does not return a value
+}
+
+def fy(b: int, c: int) int {
+    print(b + c)   # error: missing return statement in returning function
+}
+
+e = fx(1)          # error: void function does not return a value
+
+fy(1, 2)           # error: return value cannot be ignored
+
+f = "ab"
+f = fy(1, 2)       # error: 'f' is str at line 20
