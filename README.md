@@ -1,6 +1,6 @@
-# Antlr4 with JavaScript Boilerplate
+# EXP-LANG Compliler
 
-It's very simple to use, all the required and example boilerplate is already done with scripts to automate the process.
+A very simple compiler for JVM.
 
 ## Requirements
 
